@@ -1,0 +1,502 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>Демо дела Ватсона</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;0,700;1,600&family=PT+Mono&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Marck+Script&display=swap">
+<style>
+/* Layout: one case-file folder lying on a dark desk under a lamp; one clue per screen. Single deliberate dark look. */
+:root {
+  --desk: #1b1214;
+  --lamp: rgba(255, 190, 120, .16);
+  --paper: #efe4cb;
+  --paper-2: #e4d5b2;
+  --ink: #2b1e19;
+  --muted: #74604d;
+  --seal: #a3172f;
+  --pen: #2f4a7d;
+  --sticky: #f6ecb6;
+  --f-display: "Cormorant", "Times New Roman", serif;
+  --f-body: "PT Serif", Georgia, serif;
+  --f-type: "PT Mono", "Courier New", monospace;
+  --f-hand: "Marck Script", "Segoe Script", cursive;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, var(--lamp), transparent 70%),
+    var(--desk);
+  color: var(--ink);
+  font: 17px/1.55 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 48px;
+}
+.folder { max-width: 560px; margin: 0 auto; position: relative; }
+.tab {
+  display: inline-block;
+  background: var(--paper-2);
+  font: 12px/1 var(--f-type);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 16px 8px;
+  border-radius: 6px 6px 0 0;
+  margin-left: 18px;
+}
+.sheet {
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 28px 24px 30px;
+  box-shadow: 0 1px 0 var(--paper-2) inset, 0 18px 40px rgba(0,0,0,.45);
+  position: relative;
+  overflow: clip;
+  display: grid;
+  gap: 18px;
+}
+.sheet > * { min-width: 0; }
+.sheet::after {
+  content: "";
+  position: absolute;
+  width: 150px; height: 150px;
+  right: -40px; bottom: -50px;
+  border-radius: 50%;
+  border: 9px solid rgba(120, 80, 40, .07);
+  pointer-events: none;
+}
+.meta {
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+  justify-content: space-between; align-items: center;
+  font: 12px/1.3 var(--f-type);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px dashed rgba(43,30,25,.25);
+  padding-bottom: 12px;
+}
+.dots { display: flex; gap: 5px; }
+.dots i { width: 10px; height: 10px; border: 1.5px solid var(--muted); border-radius: 2px; display: block; }
+.dots i.on { background: var(--seal); border-color: var(--seal); }
+.stamp {
+  position: absolute; top: 58px; right: 14px;
+  font: 700 13px/1 var(--f-type);
+  letter-spacing: .2em;
+  color: var(--seal);
+  border: 2px solid var(--seal);
+  padding: 6px 8px;
+  transform: rotate(8deg);
+  opacity: .55;
+  pointer-events: none;
+}
+h1 {
+  font: 700 clamp(34px, 9vw, 46px)/1.02 var(--f-display);
+  margin: 0;
+  text-wrap: balance;
+  padding-right: 70px;
+}
+.greet { font: 26px/1.2 var(--f-hand); color: var(--pen); margin: 0; }
+.story p { margin: 0 0 .7em; }
+.story p:last-child { margin: 0; }
+.intro {
+  font: 14px/1.6 var(--f-type);
+  background: rgba(255,255,255,.35);
+  border: 1px solid rgba(43,30,25,.15);
+  padding: 14px 16px;
+}
+.intro p { margin: 0 0 .7em; }
+.intro p:last-child { margin: 0; }
+.sig { font-style: italic; }
+.witnesses { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.witnesses li { display: grid; gap: 2px; }
+.witnesses .who { font: 12px/1.3 var(--f-type); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.q { font: 700 19px/1.3 var(--f-body); margin: 4px 0 0; }
+.opts { display: grid; gap: 10px; }
+.opt {
+  display: flex; gap: 12px; align-items: baseline;
+  width: 100%;
+  text-align: left;
+  font: 16px/1.35 var(--f-body);
+  color: var(--ink);
+  background: rgba(255,255,255,.45);
+  border: 1.5px solid rgba(43,30,25,.3);
+  border-radius: 3px;
+  padding: 13px 14px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  text-decoration: none;
+}
+.opt:hover:not(:disabled) { background: rgba(255,255,255,.7); border-color: var(--ink); }
+.opt:active:not(:disabled) { transform: translateY(1px); }
+.opt:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+.opt b { font: 13px/1 var(--f-type); color: var(--muted); }
+.opt:disabled { cursor: default; }
+.opt.wrong { text-decoration: line-through; text-decoration-color: var(--seal); color: var(--muted); background: transparent; }
+.opt.right { border-color: var(--seal); background: rgba(163,23,47,.08); font-weight: 700; }
+.opt.picked { border-color: var(--pen); background: rgba(47,74,125,.1); font-weight: 700; }
+.note {
+  font: 23px/1.3 var(--f-hand);
+  color: var(--pen);
+  background: var(--sticky);
+  padding: 14px 16px 16px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+  margin: 0;
+}
+.exhibit { display: grid; gap: 4px; border: 1.5px dashed var(--seal); padding: 12px 14px; margin: 0; }
+.exhibit .lbl { font: 12px/1.3 var(--f-type); letter-spacing: .08em; text-transform: uppercase; color: var(--seal); }
+.found { display: grid; gap: 10px; border-top: 1px dashed rgba(43,30,25,.25); padding-top: 18px; position: relative; }
+.found .lbl { font: 12px/1 var(--f-type); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.found .place { font: 700 clamp(30px, 8vw, 40px)/1.05 var(--f-display); color: var(--seal); margin: 0; padding-right: 90px; }
+.found p { margin: 0; }
+.verdict {
+  position: absolute; right: 0; top: -4px;
+  font: 700 14px/1 var(--f-type); letter-spacing: .12em;
+  color: var(--seal); border: 3px double var(--seal);
+  padding: 8px 10px; transform: rotate(-9deg);
+  animation: slam .45s cubic-bezier(.2,1.6,.4,1) both;
+}
+@keyframes slam { from { transform: rotate(-9deg) scale(2.4); opacity: 0; } to { transform: rotate(-9deg) scale(1); opacity: .9; } }
+.letter { font: 25px/1.4 var(--f-hand); color: var(--pen); }
+.letter p { margin: 0 0 .5em; }
+.sign { text-align: right; }
+.small { font: 13px/1.5 var(--f-type); color: var(--muted); }
+.list { display: grid; gap: 16px; padding: 0; margin: 0; list-style: none; }
+.list li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 4px 14px; align-items: start; border-bottom: 1px dashed rgba(43,30,25,.2); padding-bottom: 16px; }
+.qr { grid-row: span 4; width: 112px; height: 112px; background: #fff; padding: 6px; }
+.qr img, .qr canvas { display: block; width: 100%; height: 100%; }
+.list a { color: var(--seal); font: 12px/1.4 var(--f-type); word-break: break-all; }
+h2 { font: 700 26px/1.1 var(--f-display); margin: 8px 0 0; }
+.author-note { white-space: pre-line; }
+.pin { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.pin input { flex: 1 1 120px; min-width: 0; font: 18px var(--f-type); color: var(--ink); background: rgba(255,255,255,.55); border: 1.5px solid rgba(43,30,25,.3); border-radius: 3px; padding: 10px 12px; }
+.pin .opt { width: auto; }
+@media (prefers-reduced-motion: reduce) { .verdict { animation: none; } .opt { transition: none; } }
+</style>
+<main class="folder" id="app" aria-live="polite"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ==== ВСЁ, ЧТО МОЖНО МЕНЯТЬ — ЗДЕСЬ ==== */
+const CASE = "Дело № 1 · О краже сердца доктора Ватсона";
+const AUTHOR_KEY = "avtor-8a8f";   // шпаргалка со всеми QR: ...#avtor-8a8f
+const PUBLIC_URL = "https://casper1ded1.github.io/delo-vatsona/";
+const GATE = false;
+const WATSON_PIN = "7319";   // код Ватсона: открывает страницу, если порядок сбился
+const PROSECUTOR = "P.S. Прокурор Святой Долины Дынь";
+
+const ENVELOPE = "Шерлок, срочно. Единственная улика по делу доктора Ватсона находится под угрозой. В тепле она растает, и дело развалится. Прокурор приказал поместить её в хранилище вещдоков. Там всегда холодно, а стоит открыть дверцу, загорается свет.\nНайдите улику. Есть её до конца следствия запрещено.\n\nПрокурор Святой Долины Дынь";
+const CHOCOLATE_LABEL = "Шерлок, здравствуйте. Без вашего блестящего ума нам не справиться";
+const HEADPHONES_TAG = "ДЕЛО ЗАКРЫТО. Вознаграждение детективу. Материалы для архива";
+
+const DECOYS = {
+  balkon:  { key: "sled-b41c", place: "Балкон" },
+  duhovka: { key: "sled-d7a2", place: "Духовка" },
+  stirka:  { key: "sled-5e09", place: "Стиральная машина" },
+  divan:   { key: "sled-c38f", place: "Диван" },
+  obuv:    { key: "sled-a16b", place: "Обувная полка" }
+};
+
+const STAGES = [
+  {
+    key: "ulika-aea3",
+    title: "Отпечаток на обёртке",
+    lies: "На шоколадке, в холодильнике",
+    gift: "Шоколадка",
+    intro: [
+      "Четыре года назад доктор Ватсон шёл через перекрёсток мимо небольшой аллеи со скамейками. На одной из них сидела дама с подружкой. Он увидел её, и в ту же секунду чья-то рука вцепилась в его сердце и забрала его. Доктор сделал пару шагов и упал замертво, сжимая плитку шоколада.",
+      "С тех пор следствие преследуют неудачи. Таких неудач свет не видел с тех пор, как инспектор Лестрейд взялся за дело сам. Нам нужна ваша помощь."
+    ],
+    introSign: PROSECUTOR,
+    lead: "Шерлок, на обёртке нашли отпечаток. Трое свидетелей описали место, где подозреваемая бывает каждое утро.",
+    witnesses: [
+      ["Первый свидетель", "«Там она всегда левша, хотя пишет правой рукой»."],
+      ["Второй свидетель", "«Там всё видно, но ничего не остаётся. Она ушла, и никаких следов»."],
+      ["Третий свидетель", "«Открыть его нельзя. Ни дверцы, ни ручки, ни замка»."]
+    ],
+    question: "Куда направится следствие?",
+    options: [
+      { text: "К балкону", decoy: "balkon", card: "Стекло и вид прекрасны, Шерлок. Но эта дверь открывается, а третий свидетель сказал, что открыть нельзя." },
+      { text: "К зеркалу", right: true },
+      { text: "К стиральной машине", decoy: "stirka", card: "Стекло-то вы заметили, а дверцу нет. Лестрейд был бы горд." },
+      { text: "К духовке", decoy: "duhovka", card: "И тут стекло, Шерлок. Но у духовки есть и дверца, и ручка, а свидетель их отрицал." }
+    ],
+    place: "Зеркало"
+  },
+  {
+    key: "ulika-bd51",
+    title: "Молчаливая толпа",
+    lies: "У зеркала",
+    gift: "Плюшка у зеркала",
+    prize: ["Вещдок № 2", "Сладкая улика. Изъята у зеркала. Подлежит немедленному уничтожению путём съедения."],
+    lead: "Шерлок, у зеркала нашлась новая зацепка. Следующая улика спрятана среди молчаливой толпы.",
+    witnesses: [
+      ["Первый свидетель", "«Их там целая толпа, все висят, и никто не жалуется»."],
+      ["Второй свидетель", "«Ни пятнышка на них. Все чистые, все готовы к выходу»."],
+      ["Третий свидетель", "«Каждое утро она стоит перед ними и заявляет, что ей нечего надеть. А они молчат и терпят»."]
+    ],
+    question: "Где искать?",
+    options: [
+      { text: "В стиральной машине", decoy: "stirka", card: "Шерлок, тут улики только грязные. Второй свидетель настаивал на обратном." },
+      { text: "На обувной полке", decoy: "obuv", card: "Обувь не висит, Шерлок. Если у вас висит, это уже другое дело." },
+      { text: "В шкафу", right: true },
+      { text: "На диване", decoy: "divan", card: "Да, одежда тут бывает. Но она лежит, а свидетель сказал «висят». Признайтесь, чья это куртка." }
+    ],
+    place: "Шкаф"
+  },
+  {
+    key: "ulika-6487",
+    title: "Корешки",
+    lies: "В шкафу, с лего-цветком",
+    gift: "Лего-цветок",
+    prize: ["Вещдок № 3: цветок", "Изъят в шкафу. Не вянет, не требует полива. Экспертиза установила, что чувства доктора Ватсона обладают теми же свойствами."],
+    lead: "Шерлок, цветок подтвердил версию следствия. Следующая улика спрятана там, куда Лестрейд не заглядывал ни разу в жизни.",
+    witnesses: [
+      ["Первый свидетель", "«Корешков там полно, а ничего не растёт»."],
+      ["Второй свидетель", "«Стоят рядами, плечом к плечу. И каждый сам по себе, без пары»."],
+      ["Третий свидетель", "«Внутри у каждого целая жизнь, и у каждой есть конец. У дела доктора Ватсона конца не предвидится»."]
+    ],
+    question: "Где искать?",
+    options: [
+      { text: "На балконе", decoy: "balkon", card: "Шерлок, тут корешки настоящие, поэтому и вянут. Нужны те, что не растут." },
+      { text: "На книжной полке", right: true },
+      { text: "На обувной полке", decoy: "obuv", card: "Рядами стоят, согласен. Но здесь все парами, а свидетель сказал «без пары». Лестрейд бы уже арестовал левый ботинок." },
+      { text: "На диване", decoy: "divan", card: "Читать здесь можно, а вот стоять на диване некому. Вернитесь к показаниям второго свидетеля." }
+    ],
+    place: "Книжная полка"
+  },
+  {
+    key: "ulika-94ff",
+    title: "Ночная смена",
+    lies: "На книжной полке, с лего-камерой",
+    gift: "Лего-камера",
+    prize: ["Вещдок № 4: фотоаппарат", "Изъят среди книг. Снимков с места преступления не сохранилось, скамейка давать показания отказалась. Прокурор поручает Шерлоку фиксировать всё с этого дня."],
+    lead: "Шерлок, камера зафиксировала последнюю зацепку.",
+    witnesses: [
+      ["Первый свидетель", "«Днём бездельничает, а ночью работает без выходных»."],
+      ["Второй свидетель", "«Каждую ночь подозреваемая кладёт на неё самое ценное, что у неё есть»."],
+      ["Третий свидетель", "«Их в доме несколько, но гостевые не считаются»."]
+    ],
+    question: "Где спрятана улика?",
+    options: [
+      { text: "Под подушкой на диване", decoy: "divan", card: "Подушка хороша, но гостевая. Третий свидетель такие исключил." },
+      { text: "В стиральной машине", decoy: "stirka", card: "Работает без выходных, согласен. Но голову сюда никто не кладёт. Перечитайте второго свидетеля." },
+      { text: "Под подушкой на кровати", right: true }
+    ],
+    place: "Под подушкой"
+  },
+  {
+    key: "ulika-e456",
+    title: "Дело открыто вновь",
+    lies: "На наушниках, под подушкой",
+    gift: "Наушники, главный ложный финал",
+    story: ["Стоп, Шерлок. Экспертиза установила, что наушники — подкуп, чтобы вы не услышали главного."],
+    question: "Кто украл сердце доктора Ватсона?",
+    options: [
+      { text: "Подружка со скамейки", hint: "У подружки алиби: она видела всё и молчит до сих пор. Думайте, Шерлок." },
+      { text: "Инспектор Лестрейд", hint: "Лестрейд не нашёл бы сердце даже с картой." },
+      { text: "Плитка шоколада", hint: "Шоколад был только в руке пострадавшего. Сердце забрали раньше." },
+      { text: "Дама со скамейки", right: true }
+    ],
+    final: [
+      "Дело раскрыто. Сердце украла дама со скамейки. То есть вы, Шерлок.",
+      "Обернитесь.",
+      "Доктор Ватсон стоит за вашей спиной и сдаётся без сопротивления. В руках у него главный вещдок: фен с насадками.",
+      "Приговор: пожизненно вместе, без права на побег. Сердце не возвращать.",
+      "С годовщиной, любимая."
+    ],
+    sign: PROSECUTOR
+  }
+];
+/* ==== дальше логика ==== */
+
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const LETTERS = "АБВГДЕ";
+const MEM = {};
+const store = { get: k => k in MEM ? MEM[k] : null, set: (k, v) => { MEM[k] = v; } };
+const eliminated = key => { try { return JSON.parse(store.get("delo-out-" + key)) || []; } catch { return []; } };
+function eliminate(key, decoy) {
+  const out = eliminated(key);
+  if (!out.includes(decoy)) store.set("delo-out-" + key, JSON.stringify(out.concat(decoy)));
+}
+
+const canStore = (() => { try { localStorage.setItem("delo-t", "1"); localStorage.removeItem("delo-t"); return true; } catch { return false; } })();
+const solved = () => parseInt(store.get("delo-solved") || "0", 10) || 0;
+const markSolved = n => { if (n > solved()) store.set("delo-solved", String(n)); };
+
+function renderWeb(idx) {
+  app.innerHTML = shell(CASE, `
+    <div class="meta"><span>Улика вне очереди</span></div>
+    <h1>Нити не сходятся</h1>
+    <p class="note">Шерлок, вы забежали вперёд. Эта улика ни с чем не связана, пока не раскрыта предыдущая. Верните её на место и идите по следу.</p>
+    <form class="pin" id="pin">
+      <input id="pin-code" inputmode="numeric" autocomplete="off" placeholder="Код доктора Ватсона" aria-label="Код доктора Ватсона">
+      <button class="opt" type="submit"><span>Открыть</span></button>
+    </form>
+    <p class="small" id="pin-msg">Код знает только доктор Ватсон.</p>`, "Стоп");
+  document.title = "Нити не сходятся";
+  window.scrollTo(0, 0);
+  document.getElementById("pin").addEventListener("submit", e => {
+    e.preventDefault();
+    if (document.getElementById("pin-code").value.trim() === WATSON_PIN) { markSolved(idx); renderStage(idx); }
+    else document.getElementById("pin-msg").textContent = "Код не подошёл. Позовите доктора Ватсона.";
+  });
+}
+
+function shell(tab, inner, stamp = "Секретно") {
+  return `<div class="tab">${esc(tab)}</div><article class="sheet">${stamp ? `<div class="stamp">${esc(stamp)}</div>` : ""}${inner}</article>`;
+}
+
+function renderLocked() {
+  app.innerHTML = shell(CASE, `
+    <div class="meta"><span>Доступ ограничен</span></div>
+    <h1>Материалы засекречены</h1>
+    <p class="story">Эту папку открывают только по QR-коду, найденному на месте улики. Ищите код, Шерлок.</p>`);
+  document.title = "Дело о похищенном сердце";
+}
+
+function renderDecoy(id) {
+  const d = DECOYS[id];
+  const idx = STAGES.findIndex(s => s.key === store.get("delo-current"));
+  const s = STAGES[idx];
+  const o = s && store.get("delo-picked") === id && s.options.find(x => x.decoy === id);
+  if (o) eliminate(s.key, id);
+  app.innerHTML = shell("Ложный след", `
+    <div class="meta"><span>Осмотр места: ${esc(d.place)}</span></div>
+    <h1>Здесь пусто</h1>
+    <p class="note">${esc(o ? o.card : "Шерлок, следствие сюда не направляло. Вернитесь к последней найденной улике и отсканируйте её QR ещё раз.")}</p>
+    ${o ? `<a class="opt" id="back" href="#${s.key}"><span>Вернуться к показаниям</span></a>` : ""}`, "Ложный след");
+  document.title = "Ложный след";
+  window.scrollTo(0, 0);
+}
+
+function renderAuthor() {
+  const real = STAGES.map((s, i) => ({ url: `${PUBLIC_URL}#${s.key}`, head: `QR № ${i + 1} · ${s.lies}`, name: s.title, sub: s.place ? `Ответ ведёт: ${s.place}` : "Финал: стоишь за спиной с феном" }));
+  const fake = Object.values(DECOYS).map(d => ({ url: `${PUBLIC_URL}#${d.key}`, head: "Карточка ложного следа", name: d.place, sub: "Положить на это место" }));
+  const row = x => `<li><div class="qr" data-url="${esc(x.url)}"></div><span class="small">${esc(x.head)}</span><strong>${esc(x.name)}</strong><span class="small">${esc(x.sub)}</span><a href="${esc(x.url)}">${esc(x.url)}</a></li>`;
+  app.innerHTML = shell("Шпаргалка автора", `
+    <div class="meta"><span>Только для тебя, не показывай Вике</span></div>
+    <h1>Маршрут квеста</h1>
+    <h2>Код Ватсона: ${WATSON_PIN}</h2>
+    <p class="small">Открывает любую страницу, если QR отсканировали не по порядку или порядок сбился.</p>
+    <h2>Конверт, вручаешь сам</h2>
+    <p class="intro author-note">${esc(ENVELOPE)}</p>
+    <h2>Этикетка на шоколадке</h2>
+    <p class="intro">${esc(CHOCOLATE_LABEL)}</p>
+    <h2>Бирка на наушниках</h2>
+    <p class="intro">${esc(HEADPHONES_TAG)}</p>
+    <h2>QR на подарках</h2>
+    <ul class="list">${real.map(row).join("")}</ul>
+    <h2>Карточки ложных следов</h2>
+    <ul class="list">${fake.map(row).join("")}</ul>`, "");
+  if (window.QRCode) document.querySelectorAll(".qr").forEach(el => new QRCode(el, { text: el.dataset.url, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M }));
+  document.title = "Шпаргалка автора";
+}
+
+function renderStage(idx) {
+  if (GATE && canStore && idx > solved()) return renderWeb(idx);
+  const s = STAGES[idx];
+  store.set("delo-current", s.key);
+  const out = eliminated(s.key);
+  const dots = STAGES.map((_, i) => `<i class="${i <= idx ? "on" : ""}"></i>`).join("");
+  app.innerHTML = shell(CASE, `
+    <div class="meta"><span>Протокол № ${idx + 2}</span><span class="dots" aria-hidden="true">${dots}</span></div>
+    <h1>${esc(s.title)}</h1>
+    ${s.prize ? `<div class="exhibit"><span class="lbl">${esc(s.prize[0])}</span><span>${esc(s.prize[1])}</span></div>` : ""}
+    ${s.intro ? `<div class="intro">${s.intro.map(p => `<p>${esc(p)}</p>`).join("")}<p class="sig">${esc(s.introSign)}</p></div>` : ""}
+    <div class="story">
+      ${s.lead ? `<p>${esc(s.lead)}</p>` : ""}
+      ${s.story ? s.story.map(p => `<p>${esc(p)}</p>`).join("") : ""}
+    </div>
+    ${s.witnesses ? `<ul class="witnesses">${s.witnesses.map(w => `<li><span class="who">${esc(w[0])}</span><span>${esc(w[1])}</span></li>`).join("")}</ul>` : ""}
+    <p class="q">${esc(s.question)}</p>
+    <div class="opts" id="opts">${s.options.map((o, i) => {
+      const gone = o.decoy && out.includes(o.decoy);
+      return `<button class="opt${gone ? " wrong" : ""}" type="button" id="opt-${i}" data-i="${i}"${gone ? " disabled" : ""}><b>${LETTERS[i]}</b><span>${esc(o.text)}</span></button>`;
+    }).join("")}
+    </div>
+    <div id="out"></div>`);
+  document.title = `Протокол № ${idx + 2} · ${s.title}`;
+  window.scrollTo(0, 0);
+
+  const box = document.getElementById("out");
+  document.getElementById("opts").addEventListener("click", e => {
+    const btn = e.target.closest(".opt");
+    if (!btn || btn.disabled) return;
+    const o = s.options[+btn.dataset.i];
+    if (s.final) {
+      if (o.right) {
+        document.querySelectorAll(".opt").forEach(b => b.disabled = true);
+        btn.classList.add("right");
+        box.innerHTML = finalHtml(s);
+      } else {
+        btn.classList.add("wrong");
+        btn.disabled = true;
+        box.innerHTML = `<p class="note">${esc(o.hint)}</p>`;
+      }
+    } else {
+      document.querySelectorAll(".opt").forEach(b => b.disabled = true);
+      btn.classList.add("picked");
+      if (o.right) { markSolved(idx + 1); store.set("delo-picked", ""); } else store.set("delo-picked", o.decoy);
+      const place = o.right ? s.place : DECOYS[o.decoy].place;
+      box.innerHTML = `
+        <section class="found">
+          <div class="verdict">Принято</div>
+          <span class="lbl">Версия следствия</span>
+          <p class="place">${esc(place)}</p>
+          <p>Осмотрите место и найдите QR-код. Только там станет ясно, права ли версия.</p>
+          <button class="opt" type="button" data-go="${o.right ? STAGES[idx + 1].key : DECOYS[o.decoy].key}"><span>Демо: дойти до этого места и отсканировать QR</span></button>
+        </section>`;
+    }
+    box.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+  });
+}
+
+function finalHtml(s) {
+  return `<section class="found">
+    <div class="verdict">Раскрыто</div>
+    <span class="lbl">Заключение следствия</span>
+    <div class="letter">${s.final.map(p => `<p>${esc(p)}</p>`).join("")}<p class="sign">${esc(s.sign)}</p></div>
+  </section>`;
+}
+
+let H = "";
+function renderMenu() {
+  const row = (k, a, b) => `<button class="opt" type="button" data-go="${k}"><span><strong>${esc(a)}</strong><br><span class="small">${esc(b)}</span></span></button>`;
+  app.innerHTML = shell("Демо для автора", `
+    <div class="meta"><span>Вика этого экрана не увидит</span></div>
+    <h1>Весь квест</h1>
+    <p class="story">Начни с первого протокола и выбирай ответы. После ответа нажимай кнопку «дойти до места»: она заменяет реальный поход и сканирование QR.</p>
+    <p class="intro author-note"><b>Конверт, с него всё начинается:</b>\n${esc(ENVELOPE)}</p>
+    <h2>Страницы по порядку</h2>
+    <div class="opts">${STAGES.map((s, i) => row(s.key, `Протокол № ${i + 2}. ${s.title}`, s.lies)).join("")}</div>
+    <h2>Если отсканирует раньше времени</h2>
+    <div class="opts">${row("ranniy", "Экран «Нити не сходятся»", "Код Ватсона: " + WATSON_PIN)}</div>
+    <h2>Шпаргалка</h2>
+    <div class="opts">${row(AUTHOR_KEY, "QR-коды и тексты для печати", "Все 10 кодов")}</div>`, "Демо");
+  document.title = "Демо дела Ватсона";
+}
+function route() {
+  const h = H;
+  const decoy = Object.keys(DECOYS).find(id => DECOYS[id].key === h);
+  const idx = STAGES.findIndex(s => s.key === h);
+  if (h === AUTHOR_KEY) renderAuthor();
+  else if (h === "ranniy") renderWeb(2);
+  else if (decoy) renderDecoy(decoy);
+  else if (idx >= 0) renderStage(idx);
+  else return renderMenu();
+  app.insertAdjacentHTML("afterbegin", `<p style="margin:0 0 14px"><button style="font:13px var(--f-type);padding:10px 14px;background:var(--paper);color:var(--ink);border:0;border-radius:3px;cursor:pointer" type="button" data-go=""><span>К списку всех страниц</span></button></p>`);
+}
+function go(k) { H = k; route(); window.scrollTo(0, 0); }
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (b) return go(b.dataset.go);
+  const a = e.target.closest('a[href^="#"]');
+  if (a) { e.preventDefault(); go(a.getAttribute("href").slice(1)); }
+});
+route();
+</script>
+</body></html>
